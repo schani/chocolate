@@ -35,7 +35,7 @@
 (def winning-chocolate? (memoize unmemoized-winning-chocolate?))
 
 (defn winning-up-to? [rows cols]
-  (every? (fn [x] x)
-	  (pmap winning-chocolate? (rest (for [i (range 1 rows)
-					       j (range 1 cols)]
-					   (chocolate i j))))))
+  (every? winning-chocolate?
+	  (rest (for [i (range 1 rows)
+		      j (range 1 cols)]
+		  (chocolate i j)))))
