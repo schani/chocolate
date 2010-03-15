@@ -1,15 +1,7 @@
 (ns at.ac.tuwien.complang.chocolate)
 
-(defn- real-len [choc]
-  (if (empty? choc)
-    0
-    (let [rest-len (real-len (rest choc))]
-      (if (and (zero? rest-len) (zero? (nth choc 0)))
-	0
-	(inc rest-len)))))
-
 (defn normalize [choc]
-  (take (real-len choc) choc))
+  (take-while (complement zero?) choc))
 
 (defn chocolate [rows cols]
   (repeat rows cols))
@@ -24,15 +16,9 @@
 		  (map (fn [j] [i j]) (range 0 cols)))
 		choc (range 0 (count choc)))))
 
-(defn winning-chocolate? [choc] false)
-
-(defn unmemoized-winning-chocolate? [choc]
-  (let [moves (all-moves choc)]
-    (if (empty? moves)
-      false
-      (some #(not (winning-chocolate? (eat choc %))) moves))))
-
-(def winning-chocolate? (memoize unmemoized-winning-chocolate?))
+(def winning-chocolate?
+     (memoize (fn [choc]
+		(some #(not (winning-chocolate? (eat choc %))) (all-moves choc)))))
 
 (defn winning-up-to? [rows cols]
   (every? winning-chocolate?
