@@ -42,8 +42,8 @@
   (if (zero? rows)
     '(())
     (mapcat (fn [i]
-	      (map #(cons i %)
-		   (all-chocolates-raw (dec rows) i)))
+	      (doall (map #(chocolate-array (cons i %))
+			  (all-chocolates-raw (dec rows) i))))
 	    (range 0 (inc cols)))))
 
 (defn all-chocolates [rows cols]
