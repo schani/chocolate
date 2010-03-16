@@ -1,5 +1,7 @@
 (ns at.ac.tuwien.complang.chocolate
-  (:use clojure.contrib.seq-utils))
+  (:use clojure.contrib.seq-utils)
+  (:import (javax.swing JFrame JPanel)
+	   (java.awt Color Dimension)))
 
 (defn normalize [choc]
   (take-while (complement zero?) choc))
@@ -53,3 +55,30 @@
 	losers (groups nil)]
     [(reduce add-chocolate-bits (map #(chocolate-bits rows cols %) winners))
      (reduce add-chocolate-bits (map #(chocolate-bits rows cols %) losers))]))
+
+(defn win-loss-visualize [rows cols]
+  (let [[winner-bits loser-bits] (win-loss-bits rows cols)
+	all-bits (reduce add-chocolate-bits (map #(chocolate-bits rows cols %) (all-chocolates rows cols)))
+	frame (JFrame. (str "Win-Loss " rows "x" cols))
+	panel (proxy [JPanel] []
+		(paintComponent [g]
+				(proxy-super paintComponent g)
+				(let [size (.getSize this)
+				      width (.getWidth size)
+				      height (.getHeight size)]
+				  (doseq [y (range 0 rows)
+					  x (range 0 cols)]
+				    (let [winners (nth (nth winner-bits y) x)
+					  total (nth (nth all-bits y) x)
+					  gray (float (/ winners total))]
+				      ;(println (str "painting " x " " y " with " gray))
+				      (.setColor g (Color. gray gray gray))
+				      (.fillRect g
+						 (/ (* x width) cols)
+						 (/ (* y height) rows)
+						 (/ width cols)
+						 (/ height rows)))))))]
+    (doto frame
+      (.add panel)
+      (.setSize 300 300)
+      (.setVisible true))))
