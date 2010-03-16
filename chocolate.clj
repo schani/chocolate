@@ -40,7 +40,7 @@
 
 (defn- all-chocolates-recur [rows cols y choc acc]
   (if (= y rows)
-    (conj acc (normalize choc))
+    (conj! acc (normalize choc))
     (loop [x 0
 	   acc acc]
       (if (<= x cols)
@@ -50,7 +50,7 @@
 	acc))))
 
 (defn all-chocolates [rows cols]
-  (rest (all-chocolates-recur rows cols 0 [] [])))
+  (rest (persistent! (all-chocolates-recur rows cols 0 [] (transient [])))))
 
 (defn chocolate-bits [rows cols choc]
   (doall (let [unnormalized-choc (concat choc (repeat (- rows (count choc)) 0))]
