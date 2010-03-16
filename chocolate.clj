@@ -28,9 +28,13 @@
 		  (map (fn [j] [i j]) (range 0 cols)))
 		choc (range 0 (count choc)))))
 
-(def winning-chocolate?
+(def winning-chocolate-internal?
      (memoize (fn [choc]
-		(some #(not (winning-chocolate? (eat choc %))) (all-moves choc)))))
+		(some #(not (winning-chocolate-internal? (into [] (eat choc %))))
+		      (all-moves choc)))))
+
+(defn winning-chocolate? [choc]
+  (winning-chocolate-internal? (into [] choc)))
 
 (defn winning-up-to? [rows cols]
   (every? winning-chocolate?
