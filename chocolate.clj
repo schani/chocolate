@@ -62,19 +62,25 @@
 		  (concat (repeat i 1) (repeat (- cols i) 0)))
 		unnormalized-choc))))
 
+(defn bits-map2 [f bits1 bits2]
+  (doall (map #(doall (map f %1 %2)) bits1 bits2)))
+
 (defn add-chocolate-bits [bits1 bits2]
-  (doall (map #(doall (map + %1 %2)) bits1 bits2)))
+  (bits-map2 + bits1 bits2))
 
 (defn win-loss-bits [rows cols]
-  (let [groups (group-by winning-chocolate? (all-chocolates rows cols))
-	winners (groups true)
-	losers (groups nil)]
+  (let [chocolates (all-chocolates rows cols)
+	winners (filter winning-chocolate? chocolates)
+	losers (remove winning-chocolate? chocolates)]
     [(reduce add-chocolate-bits (map #(chocolate-bits rows cols %) winners))
      (reduce add-chocolate-bits (map #(chocolate-bits rows cols %) losers))]))
 
 (defn win-loss-visualize [rows cols]
   (let [[winner-bits loser-bits] (win-loss-bits rows cols)
 	all-bits (reduce add-chocolate-bits (map #(chocolate-bits rows cols %) (all-chocolates rows cols)))
+	fractions (bits-map2 / winner-bits all-bits)
+	min-fraction (apply min (flatten fractions))
+	max-fraction (apply max (flatten fractions))
 	frame (JFrame. (str "Win-Loss " rows "x" cols))
 	panel (proxy [JPanel] []
 		(paintComponent [g]
@@ -84,10 +90,8 @@
 				      height (.getHeight size)]
 				  (doseq [y (range 0 rows)
 					  x (range 0 cols)]
-				    (let [winners (nth (nth winner-bits y) x)
-					  total (nth (nth all-bits y) x)
-					  gray (float (/ winners total))]
-				      ;(println (str "painting " x " " y " with " gray))
+				    (let [fraction (nth (nth fractions y) x)
+					  gray (float (/ (- fraction min-fraction) (- max-fraction min-fraction)))]
 				      (.setColor g (Color. gray gray gray))
 				      (.fillRect g
 						 (/ (* x width) cols)
