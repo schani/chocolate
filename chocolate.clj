@@ -38,16 +38,19 @@
 		      j (range 1 cols)]
 		  (chocolate i j)))))
 
-(defn- all-chocolates-raw [rows cols]
-  (if (zero? rows)
-    '(())
-    (mapcat (fn [i]
-	      (doall (map #(chocolate-array (cons i %))
-			  (all-chocolates-raw (dec rows) i))))
-	    (range 0 (inc cols)))))
+(defn- all-chocolates-recur [rows cols y choc acc]
+  (if (= y rows)
+    (conj acc (normalize choc))
+    (loop [x 0
+	   acc acc]
+      (if (<= x cols)
+	(let [more-choc (conj choc x)]
+	  (recur (inc x)
+		 (all-chocolates-recur rows x (inc y) more-choc acc)))
+	acc))))
 
 (defn all-chocolates [rows cols]
-  (map normalize (rest (all-chocolates-raw rows cols))))
+  (rest (all-chocolates-recur rows cols 0 [] [])))
 
 (defn chocolate-bits [rows cols choc]
   (doall (let [unnormalized-choc (concat choc (repeat (- rows (count choc)) 0))]
