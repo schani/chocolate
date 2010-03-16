@@ -87,17 +87,19 @@
 				(proxy-super paintComponent g)
 				(let [size (.getSize this)
 				      width (.getWidth size)
-				      height (.getHeight size)]
+				      height (.getHeight size)
+				      xs (map #(int (/ (* % width) cols)) (range 0 (inc cols)))
+				      ys (map #(int (/ (* % height) rows)) (range 0 (inc rows)))]
 				  (doseq [y (range 0 rows)
 					  x (range 0 cols)]
 				    (let [fraction (nth (nth fractions y) x)
 					  gray (float (/ (- fraction min-fraction) (- max-fraction min-fraction)))]
 				      (.setColor g (Color. gray gray gray))
 				      (.fillRect g
-						 (/ (* x width) cols)
-						 (/ (* y height) rows)
-						 (/ width cols)
-						 (/ height rows)))))))]
+						 (nth xs x)
+						 (nth ys y)
+						 (- (nth xs (inc x)) (nth xs x))
+						 (- (nth ys (inc y)) (nth ys y))))))))]
     (doto frame
       (.add panel)
       (.setSize 300 300)
