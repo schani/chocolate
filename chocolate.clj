@@ -25,3 +25,14 @@
 	  (rest (for [i (range 1 rows)
 		      j (range 1 cols)]
 		  (chocolate i j)))))
+
+(defn- all-chocolates-raw [rows cols]
+  (if (zero? rows)
+    '(())
+    (mapcat (fn [i]
+	      (map #(cons i %)
+		   (all-chocolates-raw (dec rows) i)))
+	    (range 0 (inc cols)))))
+
+(defn all-chocolates [rows cols]
+  (map normalize (rest (all-chocolates-raw rows cols))))
