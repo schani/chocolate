@@ -3,11 +3,20 @@
   (:import (javax.swing JFrame JPanel)
 	   (java.awt Color Dimension)))
 
+(defn- chocolate-array [choc]
+  (let [len (count choc)
+	arr (make-array (. Integer TYPE) len)]
+    (loop [i 0 c choc]
+      (when (< i len)
+	(aset arr i (first c))
+	(recur (inc i) (rest c))))
+    arr))
+
 (defn normalize [choc]
-  (take-while (complement zero?) choc))
+  (chocolate-array (take-while (complement zero?) choc)))
 
 (defn chocolate [rows cols]
-  (repeat rows cols))
+  (chocolate-array (repeat rows cols)))
 
 (defn eat [choc move]
   (let [[row col] move
